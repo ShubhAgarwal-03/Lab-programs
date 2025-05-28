@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 256
+
+void shiftTable(char *pattern, int m, int s[MAX]) {
+    int i;
+    for (i = 0; i < MAX; i++) {
+        s[i] = m;
+    }
+    for (i = 0; i < m - 1; i++) {
+        s[(unsigned char)pattern[i]] = m - i - 1;       //makes sure that the ASCII value is non-negative
+    }
+}
+
+int patternMatching(char *text, char *pattern) {
+    int m = strlen(pattern);
+    int n = strlen(text);
+    int s[MAX];
+    int i = 0;
+
+    shiftTable(pattern, m, s);
+
+    while (i <= n - m) {
+        int k = 0;
+        while (k < m && text[i + m - 1 - k] == pattern[m - 1 - k]) {
+            k++;
+        }
+        if (k == m) 
+            return i;
+        if (i + m < n)
+            i = i + s[(unsigned char)text[i + m - 1]];
+        else
+            i = i + s[(unsigned char)pattern[m-1]];
+    }
+    return -1;
+}
+
+int main() {
+    char text[100001], pattern[10001];
+
+    scanf("%s", text);
+    scanf("%s", pattern);
+
+    int result = patternMatching(text, pattern);
+
+    printf("%d\n", result);
+
+    return 0;
+}
