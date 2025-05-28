@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int board[15], count = 0;
+
+// Check if placing queen at (row, col) is safe
+int isSafe(int row, int col) {
+    for (int prevRow = 0; prevRow < row; prevRow++) {
+        int prevCol = board[prevRow];
+        if (prevCol == col || abs(prevCol - col) == abs(prevRow - row)) {
+            return 0; // Same column or diagonal
+        }
+    }
+    return 1;
+}
+
+// Print current board configuration
+void printSolution(int n) {
+    printf("Solution #%d:\n", ++count);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (board[i] == j)
+                printf("Q\t");
+            else
+                printf("*\t");
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+// Recursively place queens row by row
+void solve(int row, int n) {
+    if (row == n) {
+        printSolution(n);
+        return;
+    }
+
+    for (int col = 0; col < n; col++) {
+        if (isSafe(row, col)) {
+            board[row] = col;
+            solve(row + 1, n);
+        }
+    }
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    solve(0, n);
+
+    printf("Total solutions=%d\n", count);
+
+    return 0;
+}
