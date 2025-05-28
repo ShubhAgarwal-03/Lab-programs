@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 100
+
+typedef struct {
+    int u, v, weight;
+} Edge;
+
+Edge edgeList[MAX * MAX];
+Edge mst[MAX];
+int parent[MAX];
+
+int find(int i) {
+    if (parent[i] == -1)
+        return i;
+    return parent[i] = find(parent[i]); // path compression
+}
+
+int unionSets(int i, int j) {
+    int a = find(i);
+    int b = find(j);
+    if (a != b) {
+        parent[b] = a;
+        return 1;
+    }
+    return 0;
+}
+
+int compare(const void *a, const void *b) {
+    Edge *e1 = (Edge *)a;
+    Edge *e2 = (Edge *)b;
+    return e1->weight - e2->weight;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int cost[MAX][MAX];
+    int edgeCount = 0;
+
+    // Read matrix
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            scanf("%d", &cost[i][j]);
+
+    // Build edge list (skip 0s except diagonals)
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (cost[i][j] != 0) {
+                edgeList[edgeCount].u = i;
+                edgeList[edgeCount].v = j;
+                edgeList[edgeCount].weight = cost[i][j];
+                edgeCount++;
+            }
+        }
+    }
+
+    // Sort edge list
+    qsort(edgeList, edgeCount, sizeof(Edge), compare);
+
+    // Initialize disjoint set
+    for (int i = 0; i < n; i++)
+        parent[i] = -1;
+
+    int edgesUsed = 0, totalCost = 0;
+
+    for (int i = 0; i < edgeCount && edgesUsed < n - 1; i++) {
+        Edge e = edgeList[i];
+        if (unionSets(e.u, e.v)) {
+            mst[edgesUsed++] = e;
+            totalCost += e.weight;
+        }
+    }
+
+    // Output
+    for (int i = 0; i < edgesUsed; i++) {
+        printf("%d edge (%d, %d) = %d\n", i + 1,
+               mst[i].u + 1, mst[i].v + 1, mst[i].weight); // 1-based
+    }
+    printf("\nMinimum cost = %d\n", totalCost);
+
+    return 0;
+}
