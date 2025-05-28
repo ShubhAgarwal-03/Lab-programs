@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX 100
+#define INF INT_MAX
+
+int cost[MAX][MAX]; // Adjacency matrix
+int dist[MAX]; // Distance from source
+int visited[MAX]; // Visited nodes
+int parent[MAX]; // To store the shortest path tree
+
+// Min heap utility for Dijkstra
+void dijkstra(int n, int source) {
+    for (int i = 0; i < n; i++) {
+        dist[i] = INF;  // Initialize all distances to infinity
+        visited[i] = 0; // No node is visited initially
+        parent[i] = -1; // No parent for any node initially
+    }
+    
+    dist[source] = 0;  // Distance to itself is 0
+    
+    for (int count = 0; count < n - 1; count++) {
+        int u = -1;
+        
+        // Select the node with the minimum distance that is not yet visited
+        for (int i = 0; i < n; i++) {
+            if (!visited[i] && (u == -1 || dist[i] < dist[u])) {
+                u = i;
+            }
+        }
+        
+        visited[u] = 1;  // Mark the node as visited
+        
+        // Update the distances to the neighboring nodes
+        for (int v = 0; v < n; v++) {
+            if (!visited[v] && cost[u][v] != 0 && dist[u] + cost[u][v] < dist[v]) {
+                dist[v] = dist[u] + cost[u][v];
+                parent[v] = u;  // Set the parent node
+            }
+        }
+    }
+}
+
+void printShortestPaths(int n, int source) {
+    for (int i = 0; i < n; i++) {
+        if (i != source) {
+            if (dist[i] == INF) {
+                printf("%d -> %d, cost = INF\n", source + 1, i + 1);
+            } else {
+                printf("%d -> %d, cost = %d\n", source + 1, i + 1, dist[i]);
+            }
+        }
+    }
+}
+
+int main() {
+    int n, v;
+    
+    // Read input
+    scanf("%d", &n);  // Number of nodes
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &cost[i][j]);  // Adjacency matrix
+        }
+    }
+    
+    scanf("%d", &v);  // Source node (1-based index)
+    v--;  // Convert to 0-based index
+    
+    // Run Dijkstra's Algorithm
+    dijkstra(n, v);
+    
+    // Print the shortest path from the source node to all other nodes
+    printShortestPaths(n, v);
+    
+    return 0;
+}
